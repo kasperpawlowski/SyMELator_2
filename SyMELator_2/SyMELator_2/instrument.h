@@ -54,7 +54,7 @@ private:
 public:
 	struct FSM_state
 	{
-		const uint8_t Out;			//stan wyjscia
+		const uint8_t Out;				//stan wyjscia
 		const FSM_state* next[3];		//wskaznik na tablice kolejnych stanow (0-stop, 1-prawo, 2-lewo)
 	};
 
