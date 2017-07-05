@@ -1,40 +1,64 @@
-﻿/*Begining of Auto generated code by Atmel studio */
+﻿/*
+ * main.cpp
+ *
+ * Created: 28.06.2017
+ *	Author: Kasper Pawlowski
+ */ 
+
 #include <Arduino.h>
+#include "led.h"
+#include "input_buffer.h"
 
-/*End of auto generated code by Atmel studio */
-
-
-//Beginning of Auto generated function prototypes by Atmel Studio
-//End of Auto generated function prototypes by Atmel Studio
-class A
+void setup() 
 {
-	public:
-	struct FSM_state
+	led_init();
+	led_control(OFF);
+
+	Serial.begin(BAUD_RATE);
+
+	if(!Serial)
 	{
-		uint8_t Out;				//stan wyjscia
-		FSM_state* next[3];		//wskaznik na tablice kolejnych stanow (0-stop, 1-prawo, 2-lewo)
-	};
-	static FSM_state FSM_[4];
-};
-
-A::FSM_state A::FSM_[] = {
-	{0x05, &FSM_[0], &FSM_[1], &FSM_[3]},
-	{0x06, &FSM_[1], &FSM_[2], &FSM_[0]},
-	{0x0A, &FSM_[2], &FSM_[3], &FSM_[1]},
-	{0x09, &FSM_[3], &FSM_[0], &FSM_[2]}
-};
-
-A::FSM_state* currState = &A::FSM_[0];
-int i = 0;
-
-void setup() {
-  // put your setup code here, to run once:
-  DDRA |= 0x0f;
-  PORTA &= ~0x0f;
+		led_control(RED);
+		while(1) {;}
+	}
 }
 
-void loop() {
-  // put your main code here, to run repeatedly:
-  PORTA = (PORTA & 0xf0) | currState->Out;
-  currState = currState->next[i];
+void loop() 
+{
+	static bool initialized = false;
+	static long last_time_parsed_data = 0;
+
+	if(Serial.available() > 0)
+	{
+		if(!initialized)
+		{
+			led_control(BOTH);
+			//getinstance krokowce, serwa, bufor
+			//wlaczyc timery, przerwania etc
+			initialized = true;
+		}
+		else
+		{
+			led_control(GREEN);
+			parse_input_data();
+			last_time_parsed_data = millis();
+		}
+	}
+	else if(millis() - last_time_parsed_data > CONNECTION_TIMEOUT)
+	{
+		led_control(RED);
+		if(initialized)
+		{
+			//zwolnij zasoby
+			initialized = false;
+		}
+	}
+	else
+	{
+		if(initialized)
+			led_control(BOTH);
+		else
+			led_control(RED);
+		delay(1);
+	}
 }

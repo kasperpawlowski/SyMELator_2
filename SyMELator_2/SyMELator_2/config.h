@@ -1,14 +1,14 @@
 /*
  * config.h
  *
- * Created: 28.06.2017 15:11:05
- *  Author: Kasper
+ * Created: 28.06.2017
+ *  Author: Kasper Pawlowski
  */ 
-
 
 #ifndef CONFIG_H_
 #define CONFIG_H_
 
+//*****************************NIE MODYFIKOWAC*****************************//
 #define VARIO5_PORT_STEPPER PORTA
 #define VARIO5_HALF_BYTE LOW
 #define VARIO30_PORT_STEPPER PORTA
@@ -26,14 +26,14 @@
 #define SLIP_PORT_SERVO PORTE
 #define SLIP_PIN_SERVO 2
 
+#define GREEN_LED_PORT PORTD
+#define GREEN_LED_PIN 0
+#define RED_LED_PORT PORTD
+#define RED_LED_PIN 1
 
-
-
-
-
-
-//*****************************NIE MODYFIKOWAC*****************************//
-#define LOW 1
-#define HIGH 0
+#define LOW true
+#define HIGH false
+#define BAUD_RATE 9600
+#define CONNECTION_TIMEOUT 1000 //[ms]
 
 #endif /* CONFIG_H_ */

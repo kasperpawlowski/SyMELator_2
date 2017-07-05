@@ -33,7 +33,6 @@ void setupUSB() { }
 int main(void)
 {
 	init();
-
 	initVariant();
 
 #if defined(USBCON)
