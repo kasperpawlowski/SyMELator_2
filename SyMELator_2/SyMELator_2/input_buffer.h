@@ -9,22 +9,21 @@
 #define INPUT_BUFFER_H_
 
 #include "instrument.h"
-#include "actuators_drivers.h"
 
 class InputBuffer
 {
 private:
 	InputBuffer();					
 	static InputBuffer* instance_;
-	volatile long buffer_[BaseInstrument::NumberOfInstruments];
 	BaseInstrument* observersTab_[BaseInstrument::NumberOfInstruments];
 public:
-	~InputBuffer() {delete instance_;}
+	enum TransmissionState {FIRST_START_BYTE, SECOND_START_BYTE, CMD_BYTE, FIRST_DATA_BYTE, SECOND_DATA_BYTE, FIRST_STOP_BYTE, SECOND_STOP_BYTE};
+	~InputBuffer();
 	static InputBuffer* getInstance();
-	void attachObserver(BaseInstrument* bI);
-	void handOnData(const BaseInstrument::InstrumentId id, const BaseInstrument::Mode mode, const int data);
+	void attachObservers(BaseInstrument* bI[], const uint8_t n);
+	void handOnData(const BaseInstrument::InstrumentId id, const BaseInstrument::Mode mode, const uint16_t data, const bool neg_data);
 };
 
-void parse_input_data();	//ma zmienna statyczna stanu
+bool parse_input_data();	//ma zmienna statyczna okreslajaca stan
 
 #endif /* INPUT_BUFFER_H_ */

@@ -7,9 +7,9 @@
 
 #include <Arduino.h>
 #include "led.h"
-#include "input_buffer.h"
+#include "actuators_drivers.h"
 
-void setup() 
+void setup()
 {
 	led_init();
 	led_control(OFF);
@@ -21,6 +21,12 @@ void setup()
 		led_control(RED);
 		while(1) {;}
 	}
+
+	clear_stepper_instrument_tab();
+	clear_servo_instrument_tab();
+
+	fsm_init();
+	servo_init();
 }
 
 void loop() 
@@ -33,15 +39,15 @@ void loop()
 		if(!initialized)
 		{
 			led_control(BOTH);
-			//getinstance krokowce, serwa, bufor
-			//wlaczyc timery, przerwania etc
+			get_stepper_instrument_instances();
+			get_servo_instrument_instances();
 			initialized = true;
 		}
 		else
 		{
 			led_control(GREEN);
-			parse_input_data();
-			last_time_parsed_data = millis();
+			if( parse_input_data() )
+				last_time_parsed_data = millis();
 		}
 	}
 	else if(millis() - last_time_parsed_data > CONNECTION_TIMEOUT)
@@ -49,7 +55,8 @@ void loop()
 		led_control(RED);
 		if(initialized)
 		{
-			//zwolnij zasoby
+			release_stepper_instrument_instances();
+			release_servo_instrument_instances();
 			initialized = false;
 		}
 	}

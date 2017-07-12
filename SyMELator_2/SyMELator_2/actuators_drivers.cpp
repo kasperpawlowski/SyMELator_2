@@ -5,31 +5,78 @@
  *  Author: Kasper Pawlowski
  */ 
 
-#include <avr/io.h>
-#include <avr/interrupt.h>
+#include <Arduino.h>
 #include "actuators_drivers.h"
 
 StepperInstrument* stepper_motors_tab[BaseInstrument::NumberOfStepperInstruments];
 ServoInstrument* servos_tab[BaseInstrument::NumberOfServoInstruments];
 
+void clear_stepper_instrument_tab()
+{
+	for(uint8_t i=0; i<BaseInstrument::NumberOfStepperInstruments; ++i)
+		stepper_motors_tab[i] = nullptr;
+}
+
 void get_stepper_instrument_instances()
 {
+	if(*stepper_motors_tab != nullptr)
+		return;
+	
+	InputBuffer* input_buffer = InputBuffer::getInstance();
 
+	cli();
+	for(uint8_t i=0; i<BaseInstrument::NumberOfStepperInstruments; ++i)
+		stepper_motors_tab[i] = pStepperInstrumentCreateTab[i]();
+
+	input_buffer->attachObservers((BaseInstrument**)stepper_motors_tab,BaseInstrument::NumberOfStepperInstruments);
+	sei();
 }
 
 void release_stepper_instrument_instances()
 {
+	if(*stepper_motors_tab == nullptr)
+		return;
+	
+	cli();
+	for(uint8_t i=0; i<BaseInstrument::NumberOfStepperInstruments; ++i)
+		delete stepper_motors_tab[i];
 
+	clear_stepper_instrument_tab();
+	sei();
+}
+
+void clear_servo_instrument_tab()
+{
+	for(uint8_t i=0; i<BaseInstrument::NumberOfServoInstruments; ++i)
+		servos_tab[i] = nullptr;
 }
 
 void get_servo_instrument_instances()
 {
+	if(*servos_tab != nullptr)
+		return;
+	
+	InputBuffer* input_buffer = InputBuffer::getInstance();
 
+	cli();
+	for(uint8_t i=0; i<BaseInstrument::NumberOfServoInstruments; ++i)
+		servos_tab[i] = pServoInstrumentCreateTab[i]();
+
+	input_buffer->attachObservers((BaseInstrument**)servos_tab,BaseInstrument::NumberOfServoInstruments);
+	sei();
 }
 
 void release_servo_instrument_instances()
 {
+	if(*servos_tab == nullptr)
+		return;
+	
+	cli();
+	for(uint8_t i=0; i<BaseInstrument::NumberOfServoInstruments; ++i)
+		delete servos_tab[i];
 
+	clear_servo_instrument_tab();
+	sei();
 }
 
 void fsm_init()
@@ -39,8 +86,13 @@ void fsm_init()
 	TCCR4C = 0;						    //TIMER4 normal mode
 	TCCR4B |= (1<<CS41) | (1<<CS40);	//ustawienie preskalera -> Timer4 / 64
 	OCR4A = 2499;						//przerwanie co 10ms (100Hz)
-	TIMSK4 |= (1<<OCIE4A);				//wlaczenie przerwania od porownania
 	TCNT4 = 0;							//wyzerowanie rejestru zliczajacego
+	TIMSK4 |= (1<<OCIE4A);				//wlaczenie przerwania od porownania
+}
+
+void fsm_resume()
+{
+	TIMSK4 |= 1<<OCIE4A;
 }
 
 void fsm_stop()
@@ -101,15 +153,21 @@ void servo_init()
 	OCR3C = 0;
 }
 
+void servo_resume()
+{
+	TCCR3A |= (1<<WGM31);
+	TCCR3B |= (1<<WGM32) | (1<<WGM33);
+}
+
 void servo_stop()
 {
-	TCCR3A = 0;
-	TCCR3B = 0;
-	TCCR3C = 0;
+	TCCR3A &= ~(1<<WGM31);
+	TCCR3B &= ~((1<<WGM32) | (1<<WGM33));
 }
 
 ISR(TIMER4_COMPA_vect)
 {
-	fsm_handler();
+	if(*stepper_motors_tab != nullptr)
+		fsm_handler();
 	TCNT4 = 0;
 }
