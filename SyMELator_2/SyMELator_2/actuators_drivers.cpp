@@ -10,6 +10,7 @@
 
 StepperInstrument* stepper_motors_tab[BaseInstrument::NumberOfStepperInstruments];
 ServoInstrument* servos_tab[BaseInstrument::NumberOfServoInstruments];
+int tcnt4_state;
 
 void clear_stepper_instrument_tab()
 {
@@ -92,11 +93,14 @@ void fsm_init()
 
 void fsm_resume()
 {
+	TCNT4 = tcnt4_state;
+	TIFR4 |= 1<<OCF4A;
 	TIMSK4 |= 1<<OCIE4A;
 }
 
 void fsm_stop()
 {
+	tcnt4_state = TCNT4;
 	TIMSK4 &= ~(1<<OCIE4A);				//wylaczenie przerwania od porownania
 }
 
@@ -111,20 +115,20 @@ void fsm_handler()
 			if(stepper_motors_tab[i]->calibrationFlag)
 			{
 				stepper_motors_tab[i]->calibrationFlag = false;
-				stepper_motors_tab[i]->currentPos_.setZero();
-				stepper_motors_tab[i]->desiredPos_.setZero();
+				stepper_motors_tab[i]->currentPos_ = 0;
+				stepper_motors_tab[i]->desiredPos_ = 0;
 				stepper_motors_tab[i]->neutrumPos_ = stepper_motors_tab[i]->currentStatePtr->out;
 			}
 		}
 		else if(stepper_motors_tab[i]->currentPos_ > stepper_motors_tab[i]->desiredPos_)
 		{
 			next_state_index = 1;
-			stepper_motors_tab[i]->currentPos_++;
+			stepper_motors_tab[i]->currentPos_--;
 		}
 		else
 		{
 			next_state_index = 2;
-			stepper_motors_tab[i]->currentPos_--;
+			stepper_motors_tab[i]->currentPos_++;
 		}
 
 		stepper_motors_tab[i]->currentStatePtr = stepper_motors_tab[i]->currentStatePtr->next[next_state_index];
@@ -147,22 +151,11 @@ void servo_init()
 	TCCR3B |= (1<<CS31);				//preskaler na 8
 
 	ICR3 = 39999;						//czestotliwosc PWM 50Hz
-
+	
+	TCNT3 = 0;
 	OCR3A = 0;
 	OCR3B = 0;
 	OCR3C = 0;
-}
-
-void servo_resume()
-{
-	TCCR3A |= (1<<WGM31);
-	TCCR3B |= (1<<WGM32) | (1<<WGM33);
-}
-
-void servo_stop()
-{
-	TCCR3A &= ~(1<<WGM31);
-	TCCR3B &= ~((1<<WGM32) | (1<<WGM33));
 }
 
 ISR(TIMER4_COMPA_vect)

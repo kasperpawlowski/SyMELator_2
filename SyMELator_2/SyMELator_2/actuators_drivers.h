@@ -23,7 +23,5 @@ void fsm_resume();
 void fsm_stop();
 void fsm_handler();
 void servo_init();
-void servo_resume();
-void servo_stop();
 
 #endif /* ACTUATORS_DRIVERS_H_ */

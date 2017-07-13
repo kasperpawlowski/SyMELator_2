@@ -52,7 +52,15 @@
 #define DDR(x) SDDR(x)
 #define SPORT(x) PORT ## x
 #define PORT(x) SPORT(x)
+
 #define LOW_HALF true
 #define HIGH_HALF false
+#define FSM_OUT0 0x05
+#define FSM_OUT1 0x06
+#define FSM_OUT2 0x0A
+#define FSM_OUT3 0x09
+#define SERVO_OUT_1500US 3000
+#define SERVO_OUT_MIN 1000
+#define SERVO_OUT_MAX 5000
 
 #endif /* CONFIG_H_ */

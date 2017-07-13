@@ -12,15 +12,20 @@
 
 #define TEST 1
 
-ReferencePos::ReferencePos(const int rV) :
-	referenceVal_(rV) {}
-
 BaseInstrument::BaseInstrument(const enum InstrumentId id, const int factor, const int eAddr, volatile uint8_t* pAddr) :
 	id_(id), multiplicationFactor_(factor), eepromAddr_(eAddr),	portAddr_(pAddr), 
 	desiredPos_(0)
 {
 	if(!TEST)
+	{
 		EEPROM.get(eepromAddr_,neutrumPos_);
+		if((id_ == ALT_KM || id_ == SLIP || id_ == TURN) 
+			&& (neutrumPos_ < SERVO_OUT_MIN || neutrumPos_ > SERVO_OUT_MAX))
+			neutrumPos_ = SERVO_OUT_1500US;
+		else if((id_ == SPEED || id_ == ALT_M || id_ == VARIO5 || id_ == VARIO30 || id == COMPASS) 
+			&& (neutrumPos_ != FSM_OUT0 || neutrumPos_ != FSM_OUT1 || neutrumPos_ != FSM_OUT2 || neutrumPos_ != FSM_OUT3))
+			neutrumPos_ = FSM_OUT0;
+	}
 	else
 	{
 		neutrumPos_ = 0x05;
@@ -36,10 +41,10 @@ BaseInstrument::~BaseInstrument()
 }
 
  StepperInstrument::FSM_state StepperInstrument::FSM_[] = {
-	 {0x05, &FSM_[0], &FSM_[1], &FSM_[3]},
-	 {0x06, &FSM_[1], &FSM_[2], &FSM_[0]},
-	 {0x0A, &FSM_[2], &FSM_[3], &FSM_[1]},
-	 {0x09, &FSM_[3], &FSM_[0], &FSM_[2]}
+	 {FSM_OUT0, &FSM_[0], &FSM_[1], &FSM_[3]},
+	 {FSM_OUT1, &FSM_[1], &FSM_[2], &FSM_[0]},
+	 {FSM_OUT2, &FSM_[2], &FSM_[3], &FSM_[1]},
+	 {FSM_OUT3, &FSM_[3], &FSM_[0], &FSM_[2]}
  };
 
  StepperInstrument::StepperInstrument(const enum InstrumentId id, const int factor, const int eAddr, volatile uint8_t* pAddr, const bool lowerHalf) :
@@ -50,16 +55,16 @@ BaseInstrument::~BaseInstrument()
 
 	switch(neutrumPos_)
 	{
-	case 0x05:
+	case FSM_OUT0:
 		currentStatePtr = &FSM_[0];
 		break;
-	case 0x06:
+	case FSM_OUT1:
 		currentStatePtr = &FSM_[1];
 		break;
-	case 0x0A:
+	case FSM_OUT2:
 		currentStatePtr = &FSM_[2];
 		break;
-	case 0x09:
+	case FSM_OUT3:
 		currentStatePtr = &FSM_[3];
 		break;
 	default:
@@ -67,9 +72,15 @@ BaseInstrument::~BaseInstrument()
 	}
 	
 	if(lowerHalfOfPort_)
+	{
 		*ddr |= 0x0f;
+		*portAddr_ = (*portAddr_ & 0xf0) | (currentStatePtr->out);
+	}
 	else
+	{
 		*ddr |= 0xf0;
+		*portAddr_ = (*portAddr_ & 0x0f) | (currentStatePtr->out << 4);
+	}
  }
 
  void StepperInstrument::update(const enum Mode mode, const uint16_t data, const bool neg_data)
@@ -80,20 +91,19 @@ BaseInstrument::~BaseInstrument()
 		calibrationFlag = true;
 		
 		if(neg_data)
-			desiredPos_.set(-data);
+			desiredPos_ = (int)(-data);
 		else
-			desiredPos_.set(data);
+			desiredPos_ = data;
 	}
 	else
 	{
 		double tmp_val = (double)data/multiplicationFactor_;
 
 		if(neg_data)
-			desiredPos_.set(toReferencePos(-tmp_val));
+			desiredPos_ = toReferencePos(-tmp_val);
 		else
-			desiredPos_.set(toReferencePos(tmp_val));
+			desiredPos_ = toReferencePos(tmp_val);
 	}
-
 	fsm_resume();
  }
 
@@ -125,8 +135,8 @@ BaseInstrument::~BaseInstrument()
 	}
 	
 	*ddr |= 1<<pin;
-	desiredPos_.set(neutrumPos_);
-	*ocrAddr = desiredPos_.getRV();
+	desiredPos_ = neutrumPos_;
+	*ocrAddr = desiredPos_;
  }
 
  void ServoInstrument::update(const enum Mode mode, const uint16_t data, const bool neg_data)
@@ -137,19 +147,21 @@ BaseInstrument::~BaseInstrument()
 
 		if(neg_data)
 			neutrumPos_ *= -1;
-		desiredPos_.set(neutrumPos_);
+		desiredPos_ = neutrumPos_;
 	}
 	else
 	{
 		double tmp_val = (double)data/multiplicationFactor_;
 
 		if(neg_data)
-			desiredPos_.set(toReferencePos(-tmp_val));
+			desiredPos_ = toReferencePos(-tmp_val);
 		else
-			desiredPos_.set(toReferencePos(tmp_val));
+			desiredPos_ = toReferencePos(tmp_val);
 	}
 
-	*ocrAddr = desiredPos_.getRV();
+	cli();
+	*ocrAddr = desiredPos_;
+	sei();
  }
 
  int ServoInstrument::toReferencePos(const double abs_pV) const

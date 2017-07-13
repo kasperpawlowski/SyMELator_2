@@ -47,7 +47,6 @@
 	static BaseInstrument::Mode transmission_mode;
 	static BaseInstrument::InstrumentId instrument_id;
 	static bool negative_val;
-	static bool fe_in_data;
 	static int data;
 	
 	int tmp_data = Serial.read();
@@ -68,7 +67,7 @@
 			state = InputBuffer::FIRST_DATA_BYTE;
 		return true;
 	case InputBuffer::CMD_BYTE:
-		if(tmp_data & 0x30 == 0)
+		if((tmp_data & 0x38) == 0)
 			state = InputBuffer::FIRST_DATA_BYTE;
 		else
 		{
@@ -83,7 +82,6 @@
 
 		instrument_id = (BaseInstrument::InstrumentId)(tmp_data & 0x0f);
 		negative_val = tmp_data & 0x80;
-		fe_in_data = tmp_data & 0x10;
 		return true;
 	case InputBuffer::FIRST_DATA_BYTE:
 		state = InputBuffer::SECOND_DATA_BYTE;
