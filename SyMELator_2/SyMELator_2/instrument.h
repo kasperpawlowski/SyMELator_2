@@ -37,6 +37,8 @@ public:
 	BaseInstrument(const enum InstrumentId id, const int factor, const int eAddr, volatile uint8_t* pAddr);
 	virtual ~BaseInstrument();										//destruktor wirualny dla poprawnej kolejnosci wywolania
 	virtual void update(const enum Mode mode, const uint16_t data, const bool neg_data) = 0;	//metoda uaktualniajaca pozycje docelowa
+	virtual void go_to_neutrum() = 0;				//metoda wymuszajaca powrot do pozycji neutralnej
+private:
 	virtual int toReferencePos(const double abs_pV) const = 0;		//metoda mapujaca wartosc wielkosci fizycznej na wartosc odniesienia. zwraca wartosc odniesienia
 	
 	friend void fsm_handler();
@@ -60,6 +62,8 @@ public:
 	StepperInstrument(const enum InstrumentId id, const int factor, const int eAddr, volatile uint8_t* pAddr, const bool lowerHalf);
 	~StepperInstrument() {}								//w dekstruktorze zapis pozycji neutralnej do eeprom
 	void update(const enum Mode mode, const uint16_t data, const bool neg_data);
+	void go_to_neutrum();
+private:
 	int toReferencePos(const double abs_pV) const;
 
 	friend void fsm_handler();
@@ -74,6 +78,8 @@ public:													//ocr uaktualniac w update()
 	ServoInstrument(const enum InstrumentId id, const int factor, const int eAddr, const uint8_t pin);
 	~ServoInstrument() {}									//w dekstruktorze zapis pozycji neutralnej do eeprom
 	void update(const enum Mode mode, const uint16_t data, const bool neg_data);
+	void go_to_neutrum();
+private:
 	int toReferencePos(const double abs_pV) const;
 };
 

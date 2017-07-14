@@ -107,6 +107,13 @@ BaseInstrument::~BaseInstrument()
 	fsm_resume();
  }
 
+ void StepperInstrument::go_to_neutrum()
+ {
+	fsm_stop();
+	desiredPos_ = 0;
+	fsm_resume();
+ }
+
  int StepperInstrument::toReferencePos(const double abs_pV) const
  {
 	//TODO:
@@ -143,10 +150,11 @@ BaseInstrument::~BaseInstrument()
  {
 	if(mode == BaseInstrument::CALIBRATION)
 	{	
-		neutrumPos_ += data*deadband_;
-
 		if(neg_data)
-			neutrumPos_ *= -1;
+			neutrumPos_ -= data*deadband_;
+		else
+			neutrumPos_ += data*deadband_;
+
 		desiredPos_ = neutrumPos_;
 	}
 	else
@@ -163,6 +171,14 @@ BaseInstrument::~BaseInstrument()
 	*ocrAddr = desiredPos_;
 	sei();
  }
+
+  void ServoInstrument::go_to_neutrum()
+  {
+	  desiredPos_ = neutrumPos_;
+	  cli();
+	  *ocrAddr = desiredPos_;
+	  sei();
+  }
 
  int ServoInstrument::toReferencePos(const double abs_pV) const
  {

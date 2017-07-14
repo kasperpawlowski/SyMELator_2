@@ -46,7 +46,8 @@
 #define RED_LED_PIN 7
 
 #define BAUD_RATE 115200
-#define CONNECTION_TIMEOUT 1000 //[ms]
+#define CONNECTION_TIMEOUT 500 //[ms]
+#define GO_TO_NEUTRUM_TIME_CONSTANT 3000 //[ms]
 
 #define SDDR(x) DDR ## x
 #define DDR(x) SDDR(x)
@@ -55,10 +56,16 @@
 
 #define LOW_HALF true
 #define HIGH_HALF false
+
+#define STOP_INDEX 0
+#define DOWN_INDEX 1
+#define UP_INDEX 2
+
 #define FSM_OUT0 0x05
 #define FSM_OUT1 0x06
 #define FSM_OUT2 0x0A
 #define FSM_OUT3 0x09
+
 #define SERVO_OUT_1500US 3000
 #define SERVO_OUT_MIN 1000
 #define SERVO_OUT_MAX 5000

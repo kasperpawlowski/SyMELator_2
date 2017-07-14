@@ -21,7 +21,8 @@ public:
 	~InputBuffer();
 	static InputBuffer* getInstance();
 	void attachObservers(BaseInstrument* bI[], const uint8_t n);
-	void handOnData(const BaseInstrument::InstrumentId id, const BaseInstrument::Mode mode, const uint16_t data, const bool neg_data);
+
+	friend bool parse_input_data();
 };
 
 bool parse_input_data();	//ma zmienna statyczna okreslajaca stan

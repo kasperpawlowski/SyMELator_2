@@ -12,9 +12,11 @@
 #include "instrument.h"
 #include "input_buffer.h"
 
+void stepper_motors_go_to_neutrum();
 void clear_stepper_instrument_tab();
 void get_stepper_instrument_instances();
 void release_stepper_instrument_instances();
+void servos_go_to_neutrum();
 void clear_servo_instrument_tab();
 void get_servo_instrument_instances();
 void release_servo_instrument_instances();

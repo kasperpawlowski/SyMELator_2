@@ -32,7 +32,9 @@ void setup()
 void loop() 
 {
 	static bool initialized = false;
+	static bool went_to_neutrum = false;
 	static long last_time_parsed_data = 0;
+	static long last_time_went_to_neutrum = 0;
 
 	if(Serial.available() > 0)
 	{
@@ -53,11 +55,20 @@ void loop()
 	else if(millis() - last_time_parsed_data > CONNECTION_TIMEOUT)
 	{
 		led_control(RED);
-		if(initialized)
+		if(initialized && !went_to_neutrum)
+		{
+			stepper_motors_go_to_neutrum();
+			servos_go_to_neutrum();
+			last_time_went_to_neutrum = millis();
+			went_to_neutrum = true;
+		}
+		else if((initialized && went_to_neutrum) 
+			&& (millis() - last_time_went_to_neutrum > GO_TO_NEUTRUM_TIME_CONSTANT))
 		{
 			release_stepper_instrument_instances();
 			release_servo_instrument_instances();
 			initialized = false;
+			went_to_neutrum = false;
 		}
 	}
 	else

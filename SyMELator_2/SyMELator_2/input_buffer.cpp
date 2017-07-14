@@ -34,11 +34,6 @@
 	for(uint8_t i=0; i<n; ++i)
 		observersTab_[bI[i]->id_] = bI[i];
  }
-
- void InputBuffer::handOnData(const BaseInstrument::InstrumentId id, const BaseInstrument::Mode mode, const uint16_t data, const bool neg_data)
- {
-	observersTab_[id]->update(mode,data,neg_data);
- }
  
  bool parse_input_data()
  {
@@ -99,7 +94,7 @@
 		return true;
 	case InputBuffer::SECOND_STOP_BYTE:
 		if(tmp_data == 0x0d)
-			input_buffer->handOnData(instrument_id,transmission_mode,data,negative_val);
+			input_buffer->observersTab_[instrument_id]->update(transmission_mode,data,negative_val);
 		state = InputBuffer::FIRST_START_BYTE;
 	default:
 		return true;
