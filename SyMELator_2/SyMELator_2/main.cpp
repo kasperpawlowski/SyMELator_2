@@ -54,7 +54,6 @@ void loop()
 	}
 	else if(millis() - last_time_parsed_data > CONNECTION_TIMEOUT)
 	{
-		led_control(RED);
 		if(initialized && !went_to_neutrum)
 		{
 			stepper_motors_go_to_neutrum();
@@ -65,6 +64,7 @@ void loop()
 		else if((initialized && went_to_neutrum) 
 			&& (millis() - last_time_went_to_neutrum > GO_TO_NEUTRUM_TIME_CONSTANT))
 		{
+			led_control(RED);
 			release_stepper_instrument_instances();
 			release_servo_instrument_instances();
 			initialized = false;
@@ -73,9 +73,7 @@ void loop()
 	}
 	else
 	{
-		if(initialized)
-			led_control(BOTH);
-		else
+		if(!initialized)
 			led_control(RED);
 		delay(1);
 	}

@@ -87,10 +87,10 @@ volatile uint8_t* get_DDRx_from_PORTx(volatile uint8_t* pA);
 
 StepperInstrument* wario5_create();
 StepperInstrument* wario30_create();
-StepperInstrument* speedo_create();
-StepperInstrument* alti_stepper_create();
+StepperInstrument* SPEED_create();
+StepperInstrument* ALT_stepper_create();
 StepperInstrument* compass_create();
-ServoInstrument* alti_servo_create();
+ServoInstrument* ALT_servo_create();
 ServoInstrument* turn_create();
 ServoInstrument* slip_create();
 

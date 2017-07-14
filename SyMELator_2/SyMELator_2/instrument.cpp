@@ -228,17 +228,17 @@ BaseInstrument::~BaseInstrument()
 	return obj;
  }
 
- StepperInstrument* speedo_create()
+ StepperInstrument* SPEED_create()
  {
 	StepperInstrument* obj = new StepperInstrument(BaseInstrument::SPEED, 100,
-	SPEEDO_EEPROM_ADDR, &PORT(SPEEDO_PORT_STEPPER), SPEEDO_HALF_BYTE);
+	SPEED_EEPROM_ADDR, &PORT(SPEED_PORT_STEPPER), SPEED_HALF_BYTE);
 	return obj;
  }
 
- StepperInstrument* alti_stepper_create()
+ StepperInstrument* ALT_stepper_create()
  {
 	StepperInstrument* obj = new StepperInstrument(BaseInstrument::ALT_M, 10,
-	ALTI_EEPROM_ADDR_STEPPER, &PORT(ALTI_PORT_STEPPER), ALTI_HALF_BYTE);
+	ALT_EEPROM_ADDR_STEPPER, &PORT(ALT_PORT_STEPPER), ALT_HALF_BYTE);
 	return obj;
  }
 
@@ -249,10 +249,10 @@ BaseInstrument::~BaseInstrument()
 	return obj;
  }
 
- ServoInstrument* alti_servo_create()
+ ServoInstrument* ALT_servo_create()
  {
 	ServoInstrument* obj = new ServoInstrument(BaseInstrument::ALT_KM, 1,
-	ALTI_EEPROM_ADDR_SERVO, ALTI_PIN_SERVO);
+	ALT_EEPROM_ADDR_SERVO, ALT_PIN_SERVO);
 	return obj;
  }
 
@@ -271,7 +271,7 @@ BaseInstrument::~BaseInstrument()
  }
 
  StepperInstrument* (*pStepperInstrumentCreateTab[BaseInstrument::NumberOfStepperInstruments])() = {
- wario5_create, wario30_create, speedo_create, alti_stepper_create, compass_create};
+ wario5_create, wario30_create, SPEED_create, ALT_stepper_create, compass_create};
 
  ServoInstrument* (*pServoInstrumentCreateTab[BaseInstrument::NumberOfServoInstruments])() = {
- alti_servo_create, turn_create, slip_create};
+ ALT_servo_create, turn_create, slip_create};
