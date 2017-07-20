@@ -2,6 +2,7 @@
 Instruments driver for SyMELator 2 flight simulator.
 
 Author: Kasper Pawlowski   (kasperpawlowski@gmail.com)
+
 Cooperation: Jan Nawrocki
 
 Program przeznaczony jest do uruchomienia na platformie Arduino MEGA2560. 
