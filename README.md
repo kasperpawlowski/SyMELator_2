@@ -2,12 +2,11 @@
 Instruments driver for SyMELator 2 flight simulator.
 
 Author: Kasper Pawlowski   (kasperpawlowski@gmail.com)
+Cooperation: Jan Nawrocki
 
 Program przeznaczony jest do uruchomienia na platformie Arduino MEGA2560. 
-Jego zadaniem jest odbiór chwilowych parametrów lotu szybowca, ich interpretacja i sterowanie silnikami krokowymi bipolarnymi
-oraz serwomechanizmami w celu odwzorowania parametrów lotu na tablicy przyrządów szybowca SZD-30 Pirat. Działa tylko z programem 
-SyMELator 2 dla PC, a przeliczanie kroków/położenia kątowego serwomechanizmów właściwe jest tylko i wyłącznie dla układu mechanicznego
-i tarcz zegarów zaprojektowanych przez Koło Naukowe Lotników na Wydziale Mechanicznym Energetyki i Lotnictwa Politechniki Warszawskiej.
+Jego zadaniem jest odbiór chwilowych parametrów lotu szybowca, ich interpretacja i sterowanie silnikami krokowymi bipolarnymi (39BYGH405B) oraz serwomechanizmami (Tower Pro SG90) w celu odwzorowania parametrów lotu na tablicy przyrządów szybowca SZD-30 Pirat. Działa tylko z programem SyMELator 2 ze względu na konieczność dostarczania odpowiedniej ramki danych. 
+Jeżeli chcesz uruchomić urządzenie nie posiadając programu SyMELator 2 na PC, skontaktuj się ze mną.
 
 Zespół przyrządów pokładowych szybowca SZD-30 Pirat składa się z następujących elementów (w nawiasie uwzględniono jakiego rodzaju napęd 
 został wykorzystany do sterowania danym elementem):
