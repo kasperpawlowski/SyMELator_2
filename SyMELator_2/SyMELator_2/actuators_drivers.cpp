@@ -168,10 +168,10 @@ void servo_init()
 
 	ICR3 = 39999;						//czestotliwosc PWM 50Hz
 	
-	TCNT3 = 0;
 	OCR3A = 0;
 	OCR3B = 0;
 	OCR3C = 0;
+	TCNT3 = 0;
 }
 
 ISR(TIMER4_COMPA_vect)

@@ -35,46 +35,48 @@ void loop()
 	static bool went_to_neutrum = false;
 	static long last_time_parsed_data = 0;
 	static long last_time_went_to_neutrum = 0;
-
-	if(Serial.available() > 0)
+	
+	while(true)
 	{
-		if(!initialized)
+		if(Serial.available() > 0)
 		{
-			led_control(BOTH);
-			get_stepper_instrument_instances();
-			get_servo_instrument_instances();
-			initialized = true;
-		}
-		else
-		{
-			led_control(GREEN);
-			if( parse_input_data() )
-				last_time_parsed_data = millis();
-		}
-	}
-	else if(millis() - last_time_parsed_data > CONNECTION_TIMEOUT)
-	{
-		if(initialized && !went_to_neutrum)
-		{
-			stepper_motors_go_to_neutrum();
-			servos_go_to_neutrum();
-			last_time_went_to_neutrum = millis();
-			went_to_neutrum = true;
-		}
-		else if((initialized && went_to_neutrum) 
-			&& (millis() - last_time_went_to_neutrum > GO_TO_NEUTRUM_TIME_CONSTANT))
-		{
-			led_control(RED);
-			release_stepper_instrument_instances();
-			release_servo_instrument_instances();
-			initialized = false;
+			if(!initialized)
+			{
+				led_control(BOTH);
+				get_stepper_instrument_instances();
+				get_servo_instrument_instances();
+				initialized = true;
+			}
+			else
+			{
+				led_control(GREEN);
+				if( parse_input_data() )
+					last_time_parsed_data = millis();
+			}
 			went_to_neutrum = false;
 		}
-	}
-	else
-	{
-		if(!initialized)
+		else if(millis() - last_time_parsed_data > CONNECTION_TIMEOUT)
+		{
+			if(initialized && !went_to_neutrum)
+			{
+				stepper_motors_go_to_neutrum();
+				servos_go_to_neutrum();
+				last_time_went_to_neutrum = millis();
+				went_to_neutrum = true;
+			}
+			else if(initialized && went_to_neutrum
+				&& (millis() - last_time_went_to_neutrum > GO_TO_NEUTRUM_TIME_CONSTANT))
+			{
+				led_control(RED);
+				release_stepper_instrument_instances();
+				release_servo_instrument_instances();
+				initialized = false;
+				went_to_neutrum = false;
+			}
+		}
+		else if(!initialized)
+		{
 			led_control(RED);
-		delay(1);
+		}
 	}
 }

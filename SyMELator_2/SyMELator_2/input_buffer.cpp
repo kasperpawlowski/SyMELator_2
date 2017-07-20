@@ -32,7 +32,10 @@
  void InputBuffer::attachObservers(BaseInstrument* bI[], const uint8_t n)
  {
 	for(uint8_t i=0; i<n; ++i)
-		observersTab_[bI[i]->id_] = bI[i];
+	{	
+		if(bI[i] != nullptr)
+			observersTab_[bI[i]->id_] = bI[i];
+	}
  }
  
  bool parse_input_data()
@@ -44,59 +47,63 @@
 	static bool negative_val;
 	static int data;
 	
-	int tmp_data = Serial.read();
-
-	if(tmp_data == -1)
-		return false;
-
-	switch(state)
+	do
 	{
-	case InputBuffer::FIRST_START_BYTE:
-		if(tmp_data == 0xfe)
-			state = InputBuffer::SECOND_START_BYTE;
-		return true;	
-	case InputBuffer::SECOND_START_BYTE:
-		if(tmp_data == 0xfe)
-			state = InputBuffer::CMD_BYTE;
-		else
-			state = InputBuffer::FIRST_DATA_BYTE;
-		return true;
-	case InputBuffer::CMD_BYTE:
-		if((tmp_data & 0x38) == 0)
-			state = InputBuffer::FIRST_DATA_BYTE;
-		else
-		{
-			state = InputBuffer::FIRST_START_BYTE;
-			return true;
-		}
-		
-		if(tmp_data & 0x40)
-			transmission_mode = BaseInstrument::CALIBRATION;
-		else
-			transmission_mode = BaseInstrument::TRANSMISSION;
+		int tmp_data = Serial.read();
 
-		instrument_id = (BaseInstrument::InstrumentId)(tmp_data & 0x0f);
-		negative_val = tmp_data & 0x80;
-		return true;
-	case InputBuffer::FIRST_DATA_BYTE:
-		state = InputBuffer::SECOND_DATA_BYTE;
-		data = (tmp_data & 0xff) << 8;
-		return true;
-	case InputBuffer::SECOND_DATA_BYTE:
-		state = InputBuffer::FIRST_STOP_BYTE;
-		data |= (tmp_data & 0xff);
-		return true;
-	case InputBuffer::FIRST_STOP_BYTE:
-		if(tmp_data == 0xfe)
-			state = InputBuffer::SECOND_STOP_BYTE;
-		else
+		if(tmp_data == -1)
+			return false;
+
+		switch(state)
+		{
+		case InputBuffer::FIRST_START_BYTE:
+			if(tmp_data == 0xfe)
+				state = InputBuffer::SECOND_START_BYTE;
+			break;	
+		case InputBuffer::SECOND_START_BYTE:
+			if(tmp_data == 0xfe)
+				state = InputBuffer::CMD_BYTE;
+			else
+				state = InputBuffer::FIRST_DATA_BYTE;
+			break;
+		case InputBuffer::CMD_BYTE:
+			if((tmp_data & 0x38) == 0)
+				state = InputBuffer::FIRST_DATA_BYTE;
+			else
+			{
+				state = InputBuffer::FIRST_START_BYTE;
+				break;
+			}
+		
+			if(tmp_data & 0x40)
+				transmission_mode = BaseInstrument::CALIBRATION;
+			else
+				transmission_mode = BaseInstrument::TRANSMISSION;
+
+			instrument_id = (BaseInstrument::InstrumentId)(tmp_data & 0x0f);
+			negative_val = tmp_data & 0x80;
+			break;
+		case InputBuffer::FIRST_DATA_BYTE:
+			state = InputBuffer::SECOND_DATA_BYTE;
+			data = (tmp_data & 0xff) << 8;
+			break;
+		case InputBuffer::SECOND_DATA_BYTE:
+			state = InputBuffer::FIRST_STOP_BYTE;
+			data |= (tmp_data & 0xff);
+			break;
+		case InputBuffer::FIRST_STOP_BYTE:
+			if(tmp_data == 0xfe)
+				state = InputBuffer::SECOND_STOP_BYTE;
+			else
+				state = InputBuffer::FIRST_START_BYTE;
+			break;
+		case InputBuffer::SECOND_STOP_BYTE:
+			if(tmp_data == 0x0d && input_buffer->observersTab_[instrument_id] != nullptr)
+				input_buffer->observersTab_[instrument_id]->update(transmission_mode,data,negative_val);
 			state = InputBuffer::FIRST_START_BYTE;
-		return true;
-	case InputBuffer::SECOND_STOP_BYTE:
-		if(tmp_data == 0x0d)
-			input_buffer->observersTab_[instrument_id]->update(transmission_mode,data,negative_val);
-		state = InputBuffer::FIRST_START_BYTE;
-	default:
-		return true;
-	}
+			break;
+		}
+	} while(Serial.available() > 0);
+
+	return true;
  }

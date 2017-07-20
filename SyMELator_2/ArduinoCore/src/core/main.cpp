@@ -25,7 +25,24 @@ int atexit(void (* /*func*/ )()) { return 0; }
 // Weak empty variant initialization function.
 // May be redefined by variant files.
 void initVariant() __attribute__((weak));
-void initVariant() { }
+void initVariant() 
+{
+	TCCR1A = 0;
+	TCCR1B = 0;
+	TCCR1C = 0;
+	TCCR2A = 0;
+	TCCR2B = 0;
+	TCCR3A = 0;
+	TCCR3B = 0;
+	TCCR3C = 0;
+	TCCR4A = 0;
+	TCCR4B = 0;
+	TCCR4C = 0;
+	TCCR5A = 0;
+	TCCR5B = 0;
+	TCCR5C = 0;
+	ADCSRA = 0;
+}
 
 void setupUSB() __attribute__((weak));
 void setupUSB() { }

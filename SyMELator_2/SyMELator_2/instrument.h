@@ -29,17 +29,14 @@ public:
 	const enum InstrumentId id_;					//id przyrzadu (pozwala dostosowac metody/zachowanie do konkretnego przyrzadu)
 protected:
 	volatile int desiredPos_;					//pozycja docelowa w danej chwili czasu
-	const int multiplicationFactor_;			//wartosc mnoznika dla przesylanej wielkosci (wynika wprost z zastosowanego w programie dzialajacym na komputerze)
 	const int eepromAddr_;						//adres komorki pamieci EEPROM, w ktorej przechowywane sa dane o pozycji neutralnej
 	volatile int neutrumPos_;					//pozycja neutralna (OCR dla serwomechanizmu, 0x05/06/0a/09 dla silnika krokowego) - odczytana z/zapisywana do komorki pamieci eeprom
 	volatile uint8_t* portAddr_;				//adres portu, do ktorego podlaczone jest urzadzenie fizyczne (silnik/serwo)
 public:
-	BaseInstrument(const enum InstrumentId id, const int factor, const int eAddr, volatile uint8_t* pAddr);
+	BaseInstrument(const enum InstrumentId id, const int eAddr, volatile uint8_t* pAddr);
 	virtual ~BaseInstrument();										//destruktor wirualny dla poprawnej kolejnosci wywolania
 	virtual void update(const enum Mode mode, const uint16_t data, const bool neg_data) = 0;	//metoda uaktualniajaca pozycje docelowa
 	virtual void go_to_neutrum() = 0;				//metoda wymuszajaca powrot do pozycji neutralnej
-private:
-	virtual int toReferencePos(const double abs_pV) const = 0;		//metoda mapujaca wartosc wielkosci fizycznej na wartosc odniesienia. zwraca wartosc odniesienia
 	
 	friend void fsm_handler();
 };
@@ -59,12 +56,10 @@ private:
 	volatile FSM_state* currentStatePtr;				//wskaznik na chwilowy stan automatu skonczonego
 	volatile bool calibrationFlag;						//flaga oznaczajaca tryb kalibracji
 public:
-	StepperInstrument(const enum InstrumentId id, const int factor, const int eAddr, volatile uint8_t* pAddr, const bool lowerHalf);
+	StepperInstrument(const enum InstrumentId id, const int eAddr, volatile uint8_t* pAddr, const bool lowerHalf);
 	~StepperInstrument() {}								//w dekstruktorze zapis pozycji neutralnej do eeprom
 	void update(const enum Mode mode, const uint16_t data, const bool neg_data);
 	void go_to_neutrum();
-private:
-	int toReferencePos(const double abs_pV) const;
 
 	friend void fsm_handler();
 };
@@ -72,25 +67,23 @@ private:
 class ServoInstrument : public BaseInstrument
 {
 private:
-	const int deadband_ = 30;							//wartosc strefy nieczulosci w jednostkach rejestru OCR
+	const int deadband_ = 30;							//nieczulosc w jednostkach rejestru OCR
 	volatile uint16_t* ocrAddr;							//adres rejestru OCR - przydzielic w konstruktorze na podstawie podanego pinu. port jest jednoznaczny ze wzgledu na timer i odpowiadajace mu wyjscie pwm
 public:													//ocr uaktualniac w update()
-	ServoInstrument(const enum InstrumentId id, const int factor, const int eAddr, const uint8_t pin);
+	ServoInstrument(const enum InstrumentId id, const int eAddr, const uint8_t pin);
 	~ServoInstrument() {}									//w dekstruktorze zapis pozycji neutralnej do eeprom
 	void update(const enum Mode mode, const uint16_t data, const bool neg_data);
 	void go_to_neutrum();
-private:
-	int toReferencePos(const double abs_pV) const;
 };
 
 volatile uint8_t* get_DDRx_from_PORTx(volatile uint8_t* pA);
 
 StepperInstrument* wario5_create();
 StepperInstrument* wario30_create();
-StepperInstrument* SPEED_create();
-StepperInstrument* ALT_stepper_create();
+StepperInstrument* speed_create();
+StepperInstrument* alt_stepper_create();
 StepperInstrument* compass_create();
-ServoInstrument* ALT_servo_create();
+ServoInstrument* alt_servo_create();
 ServoInstrument* turn_create();
 ServoInstrument* slip_create();
 
