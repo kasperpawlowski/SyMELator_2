@@ -78,6 +78,8 @@ Sposób połączenia:
   + SERVO_SIGNAL <-> PE4 (2)
 - SLIP:
   + SERVO_SIGNAL <-> PE5 (3)
+- POTENTIOMETER (opcjonalnie - do kalibracji wskazówki metrów wysokościomierza):
+  + OUT <-> PF0 (A0)
 - GREEN_LED (opcjonalnie - ułatwia diagnozowanie usterek, pamiętać o rezystorach):
   + LED_ANODE <-> PB0 (53)
 - RED_LED (opcjonalnie - ułatwia diagnozowanie usterek, pamiętać o rezystorach):
