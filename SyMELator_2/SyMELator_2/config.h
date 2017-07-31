@@ -9,7 +9,8 @@
 #define CONFIG_H_
 
 //*****************************NIE MODYFIKOWAC*****************************//
-#define TEST 1
+//#define _TEST
+//#define _POTENTIOMETER
 //****************************USTAWIENIA PORTÓW****************************//
 #define VARIO5_PORT_STEPPER A
 #define VARIO5_HALF_BYTE LOW_HALF
@@ -45,7 +46,9 @@
 #define GREEN_LED_PORT B
 #define GREEN_LED_PIN 0
 #define RED_LED_PORT B
-#define RED_LED_PIN 1
+#define RED_LED_PIN 7
+
+#define POTENTIOMETER_ANALOG_PIN A0	//numer wedlug nomenklatury arduino
 
 //****************************USTAWIENIA UART******************************//
 #define BAUD_RATE 115200
@@ -74,5 +77,10 @@
 #define SERVO_MIN_OCR 1000
 #define SERVO_MAX_OCR 4900
 #define SERVO_NEUTRUM ((SERVO_MIN_OCR+SERVO_MAX_OCR)/2)
+
+#define COMPASS_DO_NOT_COME_BACK_CONST 160
+
+#define POTENTIOMETER_REV_TO_STEPPER_REV 20
+#define POTENTIOMETER_INGNORE_CONST 1015
 
 #endif /* CONFIG_H_ */

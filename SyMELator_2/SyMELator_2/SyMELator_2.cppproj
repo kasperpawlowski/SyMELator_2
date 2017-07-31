@@ -251,6 +251,12 @@
     <Compile Include="main.cpp">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="potentiometer.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="potentiometer.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Content Include="readme.html">
     </Content>
   </ItemGroup>

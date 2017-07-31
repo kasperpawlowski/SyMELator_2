@@ -20,9 +20,10 @@ public:
 	enum TransmissionState {FIRST_START_BYTE, SECOND_START_BYTE, CMD_BYTE, FIRST_DATA_BYTE, SECOND_DATA_BYTE, FIRST_STOP_BYTE, SECOND_STOP_BYTE};
 	~InputBuffer();
 	static InputBuffer* getInstance();
-	void attachObservers(BaseInstrument* bI[], const uint8_t n);
+	void attachObserversTab(BaseInstrument* bI[], const uint8_t n);
 
 	friend bool parse_input_data();
+	friend void potentiometer_do_calibration();
 };
 
 bool parse_input_data();	//ma zmienna statyczna okreslajaca stan

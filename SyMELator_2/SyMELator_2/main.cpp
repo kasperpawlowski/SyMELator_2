@@ -8,6 +8,7 @@
 #include <Arduino.h>
 #include "led.h"
 #include "actuators_drivers.h"
+#include "potentiometer.h"
 
 void setup()
 {
@@ -19,7 +20,7 @@ void setup()
 	if(!Serial)
 	{
 		led_control(RED);
-		while(1) {;}
+		while(true) {;}
 	}
 
 	clear_stepper_instrument_tab();
@@ -27,6 +28,10 @@ void setup()
 
 	fsm_init();
 	servo_init();
+
+	#ifdef _POTENTIOMETER
+		potentiometer_init();
+	#endif
 }
 
 void loop() 
@@ -36,22 +41,26 @@ void loop()
 	static long last_time_parsed_data = 0;
 	static long last_time_went_to_neutrum = 0;
 	
-	while(true)
+	while(true)									//while w funkcji loop powoduje szybsze dzialanie programu nie ingerujac w 'skladnie arduino'
 	{
 		if(Serial.available() > 0)
 		{
-			if(!initialized)
+			if(initialized)
+			{
+				led_control(GREEN);
+				if( parse_input_data() )
+					last_time_parsed_data = millis();
+
+				#ifdef _POTENTIOMETER
+					potentiometer_do_calibration();
+				#endif
+			}
+			else
 			{
 				led_control(BOTH);
 				get_stepper_instrument_instances();
 				get_servo_instrument_instances();
 				initialized = true;
-			}
-			else
-			{
-				led_control(GREEN);
-				if( parse_input_data() )
-					last_time_parsed_data = millis();
 			}
 			went_to_neutrum = false;
 		}

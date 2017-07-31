@@ -13,25 +13,25 @@
 BaseInstrument::BaseInstrument(const enum InstrumentId id, const int eAddr, volatile uint8_t* pAddr) :
 	id_(id), eepromAddr_(eAddr), portAddr_(pAddr), desiredPos_(0)
 {
-	#if (TEST == 1)
+	#ifndef _TEST
+		EEPROM.get(eepromAddr_,neutrumPos_);
+		if((id_ == ALT_KM || id_ == SLIP || id_ == TURN)
+			&& (neutrumPos_ < SERVO_MIN_OCR || neutrumPos_ > SERVO_MAX_OCR))
+			neutrumPos_ = SERVO_NEUTRUM;
+		else if((id_ == SPEED || id_ == ALT_M || id_ == VARIO5 || id_ == VARIO30 || id == COMPASS)
+			&& (neutrumPos_ != FSM_OUT0 || neutrumPos_ != FSM_OUT1 || neutrumPos_ != FSM_OUT2 || neutrumPos_ != FSM_OUT3))
+			neutrumPos_ = FSM_OUT0;
+	#else
 		if(id_ == ALT_KM || id_ == SLIP || id_ == TURN)
 			neutrumPos_ = 3000;
 		else
 			neutrumPos_ = 0x05;
-	#else
-		EEPROM.get(eepromAddr_,neutrumPos_);
-		if((id_ == ALT_KM || id_ == SLIP || id_ == TURN)
-			&& (neutrumPos_ < SERVO_MIN_OCR || neutrumPos_ > SERVO_MAX_OCR))
-		neutrumPos_ = SERVO_NEUTRUM;
-		else if((id_ == SPEED || id_ == ALT_M || id_ == VARIO5 || id_ == VARIO30 || id == COMPASS)
-			&& (neutrumPos_ != FSM_OUT0 || neutrumPos_ != FSM_OUT1 || neutrumPos_ != FSM_OUT2 || neutrumPos_ != FSM_OUT3))
-		neutrumPos_ = FSM_OUT0;
 	#endif
 }
 
 BaseInstrument::~BaseInstrument()
 {
-	#if (TEST != 1)
+	#ifndef _TEST
 		EEPROM.put(eepromAddr_,neutrumPos_);
 	#endif
 }
@@ -80,23 +80,30 @@ BaseInstrument::~BaseInstrument()
  }
 
  void StepperInstrument::update(const enum Mode mode, const uint16_t data, const bool neg_data)
- {
-	int tmp_val;
-
+ {	
+	fsm_stop();
 	if(mode == BaseInstrument::CALIBRATION)
-	{
-		fsm_stop();
 		calibrationFlag = true;
-		fsm_resume();
-	}
+	else
+		calibrationFlag = false;
 
 	if(neg_data)
-		tmp_val = (int)(-data);
+		desiredPos_ = (int)(-data);
 	else
-		tmp_val = data;
-		
-	fsm_stop();
-	desiredPos_ = tmp_val;
+		desiredPos_ = data;	
+
+	if((desiredPos_ == 0) && (currentPos_ > STEPS_PER_REV))
+		currentPos_ = currentPos_ % STEPS_PER_REV;
+
+	if(id_ == COMPASS)
+	{
+		int tmp_difference = desiredPos_-currentPos_;
+
+		if(tmp_difference > COMPASS_DO_NOT_COME_BACK_CONST)
+			desiredPos_ -= STEPS_PER_REV;
+		else if(tmp_difference < -COMPASS_DO_NOT_COME_BACK_CONST)
+			desiredPos_ += STEPS_PER_REV;
+	}
 	fsm_resume();
  }
 
@@ -124,9 +131,6 @@ BaseInstrument::~BaseInstrument()
 	case 5:
 		ocrAddr = &OCR3C;
 		break;
-	default:
-		ocrAddr = nullptr;
-		break;
 	}
 	
 	*ddr |= 1<<pin;
@@ -136,31 +140,31 @@ BaseInstrument::~BaseInstrument()
 
  void ServoInstrument::update(const enum Mode mode, const uint16_t data, const bool neg_data)
  {
-	if(mode == BaseInstrument::CALIBRATION)
+	if(mode == BaseInstrument::TRANSMISSION)
 	{	
-		if(neg_data)
-			neutrumPos_ -= data*deadband_;
-		else
-			neutrumPos_ += data*deadband_;
-
-		if(neutrumPos_ < SERVO_MIN_OCR)
-			neutrumPos_ = SERVO_MIN_OCR;
-		else if(neutrumPos_ > SERVO_MAX_OCR)
-			neutrumPos_ = SERVO_MAX_OCR;
-
-		desiredPos_ = neutrumPos_;
-	}
-	else
-	{
 		if(neg_data)
 			desiredPos_ = SERVO_MIN_OCR;
 		else
 			desiredPos_ = data + neutrumPos_;
 
-		if(desiredPos_ < SERVO_MIN_OCR)
-			desiredPos_ = SERVO_MIN_OCR;
-		else if(desiredPos_ > SERVO_MAX_OCR)
+		if(desiredPos_ > SERVO_MAX_OCR)
 			desiredPos_ = SERVO_MAX_OCR;
+		else if(desiredPos_ < SERVO_MIN_OCR)
+			desiredPos_ = SERVO_MIN_OCR;
+	}
+	else
+	{
+		if(neg_data)
+			neutrumPos_ -= data*deadband_;
+		else
+			neutrumPos_ += data*deadband_;
+
+		if(neutrumPos_ > SERVO_MAX_OCR)
+			neutrumPos_ = SERVO_MAX_OCR;
+		else if(neutrumPos_ < SERVO_MIN_OCR)
+			neutrumPos_ = SERVO_MIN_OCR;
+
+		desiredPos_ = neutrumPos_;
 	}
 
 	cli();

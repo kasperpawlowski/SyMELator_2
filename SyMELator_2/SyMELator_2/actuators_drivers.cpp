@@ -38,7 +38,7 @@ void get_stepper_instrument_instances()
 	for(uint8_t i=0; i<BaseInstrument::NumberOfStepperInstruments; ++i)
 		stepper_motors_tab[i] = pStepperInstrumentCreateTab[i]();
 
-	input_buffer->attachObservers((BaseInstrument**)stepper_motors_tab,BaseInstrument::NumberOfStepperInstruments);
+	input_buffer->attachObserversTab((BaseInstrument**)stepper_motors_tab,BaseInstrument::NumberOfStepperInstruments);
 	sei();
 }
 
@@ -81,7 +81,7 @@ void get_servo_instrument_instances()
 	for(uint8_t i=0; i<BaseInstrument::NumberOfServoInstruments; ++i)
 		servos_tab[i] = pServoInstrumentCreateTab[i]();
 
-	input_buffer->attachObservers((BaseInstrument**)servos_tab,BaseInstrument::NumberOfServoInstruments);
+	input_buffer->attachObserversTab((BaseInstrument**)servos_tab,BaseInstrument::NumberOfServoInstruments);
 	sei();
 }
 
@@ -126,7 +126,19 @@ void fsm_handler()
 {
 	for(uint8_t i=0; i<BaseInstrument::NumberOfStepperInstruments; ++i)
 	{
-		if(stepper_motors_tab[i]->currentPos_ == stepper_motors_tab[i]->desiredPos_)
+		int tmp_difference = stepper_motors_tab[i]->currentPos_ - stepper_motors_tab[i]->desiredPos_;
+
+		if(tmp_difference > 0)
+		{
+			stepper_motors_tab[i]->currentStatePtr = stepper_motors_tab[i]->currentStatePtr->next[DOWN_INDEX];
+			stepper_motors_tab[i]->currentPos_--;
+		}
+		else if(tmp_difference < 0)
+		{
+			stepper_motors_tab[i]->currentStatePtr = stepper_motors_tab[i]->currentStatePtr->next[UP_INDEX];
+			stepper_motors_tab[i]->currentPos_++;
+		}
+		else
 		{
 			stepper_motors_tab[i]->currentStatePtr = stepper_motors_tab[i]->currentStatePtr->next[STOP_INDEX];
 
@@ -137,16 +149,6 @@ void fsm_handler()
 				stepper_motors_tab[i]->currentPos_ = 0;
 				stepper_motors_tab[i]->desiredPos_ = 0;
 			}
-		}
-		else if(stepper_motors_tab[i]->currentPos_ > stepper_motors_tab[i]->desiredPos_)
-		{
-			stepper_motors_tab[i]->currentStatePtr = stepper_motors_tab[i]->currentStatePtr->next[DOWN_INDEX];
-			stepper_motors_tab[i]->currentPos_--;
-		}
-		else
-		{
-			stepper_motors_tab[i]->currentStatePtr = stepper_motors_tab[i]->currentStatePtr->next[UP_INDEX];
-			stepper_motors_tab[i]->currentPos_++;
 		}
 
 		if(stepper_motors_tab[i]->lowerHalfOfPort_)
