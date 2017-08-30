@@ -41,7 +41,7 @@
  
  bool parse_input_data()
  {
-	static InputBuffer* input_buffer = InputBuffer::getInstance();
+	static InputBuffer* input_buffer			= InputBuffer::getInstance();
 	static InputBuffer::TransmissionState state = InputBuffer::FIRST_START_BYTE;
 	static BaseInstrument::Mode transmission_mode;
 	static BaseInstrument::InstrumentId instrument_id;
@@ -99,7 +99,8 @@
 				break;
 			case InputBuffer::SECOND_STOP_BYTE:
 				if(tmp_data == 0x0d && input_buffer->observersTab_[instrument_id] != nullptr)
-					input_buffer->observersTab_[instrument_id]->update(transmission_mode,data,negative_val);
+					input_buffer->observersTab_[instrument_id]->update(transmission_mode,
+																	   data,negative_val);
 				state = InputBuffer::FIRST_START_BYTE;
 				break;
 			}

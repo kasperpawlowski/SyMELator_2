@@ -8,8 +8,10 @@
 #include <Arduino.h>
 #include "actuators_drivers.h"
 
-StepperInstrument* stepper_motors_tab[BaseInstrument::NumberOfStepperInstruments];
-ServoInstrument* servos_tab[BaseInstrument::NumberOfServoInstruments];
+StepperInstrument* stepper_motors_tab[BaseInstrument::NumberOfStepperInstruments] = {
+	nullptr, nullptr, nullptr, nullptr, nullptr};
+ServoInstrument* servos_tab[BaseInstrument::NumberOfServoInstruments] = {
+	nullptr, nullptr, nullptr};
 int tcnt4_state;
 
 void stepper_motors_go_to_neutrum()
@@ -28,28 +30,26 @@ void clear_stepper_instrument_tab()
 }
 
 void get_stepper_instrument_instances()
-{
-	if(*stepper_motors_tab != nullptr)
-		return;
-	
+{	
 	InputBuffer* input_buffer = InputBuffer::getInstance();
+
+	release_stepper_instrument_instances();
 
 	cli();
 	for(uint8_t i=0; i<BaseInstrument::NumberOfStepperInstruments; ++i)
 		stepper_motors_tab[i] = pStepperInstrumentCreateTab[i]();
 
-	input_buffer->attachObserversTab((BaseInstrument**)stepper_motors_tab,BaseInstrument::NumberOfStepperInstruments);
+	input_buffer->attachObserversTab((BaseInstrument**)stepper_motors_tab,
+									 BaseInstrument::NumberOfStepperInstruments);
 	sei();
 }
 
 void release_stepper_instrument_instances()
 {
-	if(*stepper_motors_tab == nullptr)
-		return;
-	
 	cli();
 	for(uint8_t i=0; i<BaseInstrument::NumberOfStepperInstruments; ++i)
-		delete stepper_motors_tab[i];
+		if(stepper_motors_tab[i] != nullptr)
+			delete stepper_motors_tab[i];
 
 	clear_stepper_instrument_tab();
 	sei();
@@ -72,27 +72,25 @@ void clear_servo_instrument_tab()
 
 void get_servo_instrument_instances()
 {
-	if(*servos_tab != nullptr)
-		return;
-	
 	InputBuffer* input_buffer = InputBuffer::getInstance();
+
+	release_servo_instrument_instances();
 
 	cli();
 	for(uint8_t i=0; i<BaseInstrument::NumberOfServoInstruments; ++i)
 		servos_tab[i] = pServoInstrumentCreateTab[i]();
 
-	input_buffer->attachObserversTab((BaseInstrument**)servos_tab,BaseInstrument::NumberOfServoInstruments);
+	input_buffer->attachObserversTab((BaseInstrument**)servos_tab,
+									 BaseInstrument::NumberOfServoInstruments);
 	sei();
 }
 
 void release_servo_instrument_instances()
 {
-	if(*servos_tab == nullptr)
-		return;
-	
 	cli();
 	for(uint8_t i=0; i<BaseInstrument::NumberOfServoInstruments; ++i)
-		delete servos_tab[i];
+		if(servos_tab[i] != nullptr)
+			delete servos_tab[i];
 
 	clear_servo_instrument_tab();
 	sei();
@@ -111,8 +109,8 @@ void fsm_init()
 
 void fsm_resume()
 {
-	TCNT4 = tcnt4_state;
-	TIFR4 |= 1<<OCF4A;
+	TCNT4   = tcnt4_state;
+	TIFR4  |= 1<<OCF4A;
 	TIMSK4 |= 1<<OCIE4A;
 }
 
