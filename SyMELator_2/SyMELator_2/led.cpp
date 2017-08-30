@@ -12,7 +12,7 @@
  void led_init()
  {
 	DDR(GREEN_LED_PORT) |= 1<<GREEN_LED_PIN;
-	DDR(RED_LED_PORT)	|= 1<<RED_LED_PIN;
+	DDR(RED_LED_PORT)	  |= 1<<RED_LED_PIN;
  }
 
  void led_control(const enum LedState state)

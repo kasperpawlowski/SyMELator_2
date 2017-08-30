@@ -17,7 +17,7 @@ BaseInstrument::BaseInstrument(const enum InstrumentId id, const int eAddr, vola
 	EEPROM.get(eepromAddr_,neutrumPos_);
 	if((id_ == ALT_KM || id_ == SLIP || id_ == TURN) && 
 	   (neutrumPos_ < SERVO_MIN_OCR || neutrumPos_ > SERVO_MAX_OCR))
-			neutrumPos_ = SERVO_NEUTRUM;
+		    neutrumPos_ = SERVO_NEUTRUM;
 	else if((id_ == SPEED || id_ == ALT_M || id_ == VARIO5 || id_ == VARIO30 || id == COMPASS) && 
 			(neutrumPos_ != FSM_OUT0 || neutrumPos_ != FSM_OUT1 || neutrumPos_ != FSM_OUT2 || neutrumPos_ != FSM_OUT3))
 				neutrumPos_ = FSM_OUT0;
@@ -212,61 +212,69 @@ BaseInstrument::~BaseInstrument()
  StepperInstrument* wario5_create()
  {
 	StepperInstrument* obj = new StepperInstrument(BaseInstrument::VARIO5,
-												   VARIO5_EEPROM_ADDR, &PORT(VARIO5_PORT_STEPPER), 
-												   VARIO5_HALF_BYTE);
+												                         VARIO5_EEPROM_ADDR, 
+                                                 &PORT(VARIO5_PORT_STEPPER), 
+												                         VARIO5_HALF_BYTE);
 	return obj;
  }
 
  StepperInstrument* wario30_create()
  {
 	StepperInstrument* obj = new StepperInstrument(BaseInstrument::VARIO30,
-												   VARIO30_EEPROM_ADDR, &PORT(VARIO30_PORT_STEPPER), 
-												   VARIO30_HALF_BYTE);
+												                         VARIO30_EEPROM_ADDR, 
+                                                 &PORT(VARIO30_PORT_STEPPER), 
+												                         VARIO30_HALF_BYTE);
 	return obj;
  }
 
  StepperInstrument* speed_create()
  {
 	StepperInstrument* obj = new StepperInstrument(BaseInstrument::SPEED,
-												   SPEED_EEPROM_ADDR, &PORT(SPEED_PORT_STEPPER), 
-												   SPEED_HALF_BYTE);
+												                         SPEED_EEPROM_ADDR, 
+                                                 &PORT(SPEED_PORT_STEPPER), 
+												                         SPEED_HALF_BYTE);
 	return obj;
  }
 
  StepperInstrument* alt_stepper_create()
  {
 	StepperInstrument* obj = new StepperInstrument(BaseInstrument::ALT_M,
-												   ALT_EEPROM_ADDR_STEPPER, &PORT(ALT_PORT_STEPPER), 
-												   ALT_HALF_BYTE);
+												                         ALT_EEPROM_ADDR_STEPPER, 
+                                                 &PORT(ALT_PORT_STEPPER), 
+												                         ALT_HALF_BYTE);
 	return obj;
  }
 
  StepperInstrument* compass_create()
  {
 	StepperInstrument* obj = new StepperInstrument(BaseInstrument::COMPASS,
-												   COMPASS_EEPROM_ADDR, &PORT(COMPASS_PORT_STEPPER), 
-												   COMPASS_HALF_BYTE);
+												                         COMPASS_EEPROM_ADDR, 
+                                                 &PORT(COMPASS_PORT_STEPPER), 
+												                         COMPASS_HALF_BYTE);
 	return obj;
  }
 
  ServoInstrument* alt_servo_create()
  {
 	ServoInstrument* obj = new ServoInstrument(BaseInstrument::ALT_KM,
-											   ALT_EEPROM_ADDR_SERVO, ALT_PIN_SERVO);
+											                       ALT_EEPROM_ADDR_SERVO,
+                                             ALT_PIN_SERVO);
 	return obj;
  }
 
  ServoInstrument* turn_create()
  {
 	ServoInstrument* obj = new ServoInstrument(BaseInstrument::TURN,
-											   TURN_EEPROM_ADDR, TURN_PIN_SERVO);
+											                       TURN_EEPROM_ADDR, 
+                                             TURN_PIN_SERVO);
 	return obj;
  }
 
  ServoInstrument* slip_create()
  {
 	ServoInstrument* obj = new ServoInstrument(BaseInstrument::SLIP,
-											   SLIP_EEPROM_ADDR, SLIP_PIN_SERVO);
+											                       SLIP_EEPROM_ADDR, 
+                                             SLIP_PIN_SERVO);
 	return obj;
  }
 

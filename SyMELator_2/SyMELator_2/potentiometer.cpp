@@ -18,10 +18,10 @@
  void potentiometer_do_calibration()
  {
 	static InputBuffer* input_buffer = InputBuffer::getInstance();
-	static int last_reading			 = analogRead(POTENTIOMETER_ANALOG_PIN);
-	bool neg_data					 = false;
-	int tmp_reading					 = analogRead(POTENTIOMETER_ANALOG_PIN);
-	int readings_difference			 = tmp_reading - last_reading;
+	static int last_reading	         = analogRead(POTENTIOMETER_ANALOG_PIN);
+	bool neg_data                    = false;
+	int tmp_reading                  = analogRead(POTENTIOMETER_ANALOG_PIN);
+	int readings_difference          = tmp_reading - last_reading;
 
 	if(readings_difference < 0)
 	{
@@ -37,8 +37,9 @@
 		return;
 	}
 	else 
-		input_buffer->observersTab_[BaseInstrument::ALT_M]->update(BaseInstrument::CALIBRATION,
-																   readings_difference / ADC_TO_STEPS_CONSTANT,neg_data);
+	  input_buffer->observersTab_[BaseInstrument::ALT_M]->update(BaseInstrument::CALIBRATION,
+																                               readings_difference / ADC_TO_STEPS_CONSTANT,
+                                                               neg_data);
 
 	last_reading = tmp_reading;
  }

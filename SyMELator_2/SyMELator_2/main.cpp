@@ -33,9 +33,9 @@ void setup()
 
 void loop() 
 {
-	static bool initialized				  = false;
-	static bool went_to_neutrum			  = false;
-	static long last_time_parsed_data	  = 0;
+	static bool initialized				        = false;
+	static bool went_to_neutrum			      = false;
+	static long last_time_parsed_data	    = 0;
 	static long last_time_went_to_neutrum = 0;
 	
 	while(true)									//while w funkcji loop powoduje szybsze dzialanie programu nie ingerujac w 'skladnie arduino'
