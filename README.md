@@ -3,7 +3,7 @@ Instruments driver for SyMELator 2 flight simulator.
 
 Author: Kasper Pawlowski   (kasperpawlowski@gmail.com)
 
-Cooperation: Jan Nawrocki
+Cooperation: Jan Oleszczuk, Jan Nawrocki
 
 Program przeznaczony jest do uruchomienia na platformie Arduino MEGA2560. 
 Jego zadaniem jest odbiór chwilowych parametrów lotu szybowca, ich interpretacja i sterowanie silnikami krokowymi bipolarnymi (39BYGH405B) oraz serwomechanizmami (Tower Pro SG90) w celu odwzorowania parametrów lotu na tablicy przyrządów szybowca SZD-30 Pirat. Działa tylko z programem SyMELator 2 ze względu na konieczność dostarczania odpowiedniej ramki danych. 
