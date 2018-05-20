@@ -41,7 +41,7 @@
  
  bool parse_input_data()
  {
-	static InputBuffer* input_buffer			      = InputBuffer::getInstance();
+	static InputBuffer* input_buffer = InputBuffer::getInstance();
 	static InputBuffer::TransmissionState state = InputBuffer::FIRST_START_BYTE;
 	static BaseInstrument::Mode transmission_mode;
 	static BaseInstrument::InstrumentId instrument_id;

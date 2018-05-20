@@ -74,7 +74,6 @@ public:													          //ocr uaktualniac w update()
 	~ServoInstrument() {}								  	//w dekstruktorze zapis pozycji neutralnej do eeprom
 	void update(const enum Mode mode, const uint16_t data, const bool neg_data);
 	void go_to_neutrum();
-	inline void limit_to_servo_specific();	//ogranicza desiredPos_ do zakresu wlasciwego dla serwa
 };
 
 volatile uint8_t* get_DDRx_from_PORTx(volatile uint8_t* pA);
